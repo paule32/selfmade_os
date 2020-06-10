@@ -35,7 +35,7 @@ load_kernel:
 
     ; set parameters for reading function
     ; 8-Bit-wise for better overview
-    mov dl, [bootdrive]	; select boot drive
+    mov dl, [bootdrive]		; select boot drive
     mov al, 10			; read 10 sectors
     mov ch, 0			; cylinder = 0
     mov cl, 2			; sector   = 2

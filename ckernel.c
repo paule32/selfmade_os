@@ -54,7 +54,7 @@ void update_cursor(int row, int col)
     outportb(0x3D5, (unsigned char)((position>>8)&0xFF));
 }
 
-int main()
+int RealEntry()
 {
     k_clear_screen();
     k_printf("Welcome to MyOS.", 0);

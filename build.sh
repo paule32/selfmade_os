@@ -26,10 +26,10 @@ cat kernel3.bin    >> boot3.bin
 # part: 4
 nasm bootloader2.asm -f bin  -o bootloader2.bin
 nasm kernel4.asm     -f aout -o kernel4.o
-gcc -m32 -fno-plt -fno-pic -nostdlib -c ckernel.c -o ckernel.o
-ld  -melf_i386 -T kernel.ld kernel4.o ckernel.o
-cp a.out ckernel.bin
-rm -rf a.out
+#gcc -m32 -O3 -fno-plt -fno-pic -nostdlib -ffreestanding -c ckernel.c -o ckernel.o
+ld  -melf_i386 -e RealMode -o ckernel.bin -T kernel.ld
+#cp a.out ckernel.bin
+#rm -rf a.out
 cat bootloader2.bin > boot4.bin
 cat ckernel.bin    >> boot4.bin
 

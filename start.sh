@@ -7,8 +7,8 @@
 # This file is part of MyOs
 # -----------------------------------------------------------------------------
 echo "start qemu vm ..."
-qemu-system-x86_64 -smp 4 -M pc -k de \
+qemu-system-i386 -d in_asm -smp 2 -M pc -k de \
     -drive format=raw,file=boot4.bin,index=0,if=floppy \
     -vga std		\
     -localtime  	\
-    -m 512		-name "MyOS 2020"
+    -m 512		-name "MyOS 2020" > log.txt

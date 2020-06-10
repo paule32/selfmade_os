@@ -8,17 +8,25 @@
 ; ------------------------------------------------------------------------------
 [BITS 16]
 ;   org 0x8000		; code start address
-
-[global RealMode]
-[extern main]		; this is in the C file
+section .text
+global RealMode
+extern RealEntry	; this is in the C file
 
 RealMode:
-_start:
     xor ax, ax			; setup segments
     mov es, ax
     mov ds, ax
     mov ss, ax
     mov sp, ax
+
+xor ax, ax
+int 0x16
+
+    mov si, msg_welcome2
+    call print_string
+
+xor ax, ax
+int 0x16
 
     add sp, -0x40		; make room for input buffer (64 chars)
 
@@ -88,7 +96,7 @@ loop_start:
     je .no_fast_A20
 
     or al, 2			; set A20 gate bit (bit: 1)
-    and al, -1			; clear init_now bit (don't reset pc ,,,)
+    and al, ~1			; clear init_now bit (don't reset pc ,,,)
     out 0x92, al
     jmp .A20_done
 
@@ -228,7 +236,7 @@ ProtectedMode:
     jb .endlessloop
     mov dword [PutStr_Ptr], 0xB8000  ; text pointer wrap-arround
 
-    call main  ; ->-> C-kernel
+    call RealEntry  ; ->-> C-kernel
     jmp $
 
 Waitingloop:
@@ -258,8 +266,10 @@ clrscr_32:
     rep stosd
     ret
 
+section .data
 PutStr_Ptr dd 0xb8000
 
+msg_welcome2:		db "wb2", 13, 10, 0
 msg_helloworld: 	db "Hello from PC!",		0x0d, 0x0a, 0
 msg_badcommand: 	db "Bad command entered.",	0x0d, 0x0a, 0
 
