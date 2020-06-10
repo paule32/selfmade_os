@@ -31,7 +31,7 @@ load_kernel:
     int 0x13
     jc load_kernel		; trouble? try again
 
-    mov bx, (0x7c00 + 512 + 1)
+    mov bx, (0x7c00 + 512)
 
     ; set parameters for reading function
     ; 8-Bit-wise for better overview

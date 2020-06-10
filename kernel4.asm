@@ -19,14 +19,8 @@ RealMode:
     mov ss, ax
     mov sp, ax
 
-xor ax, ax
-int 0x16
-
     mov si, msg_welcome2
     call print_string
-
-xor ax, ax
-int 0x16
 
     add sp, -0x40		; make room for input buffer (64 chars)
 
@@ -269,7 +263,7 @@ clrscr_32:
 section .data
 PutStr_Ptr dd 0xb8000
 
-msg_welcome2:		db "wb2", 13, 10, 0
+msg_welcome2:		db "kernel loaded, ready for input.", 13, 10, 0
 msg_helloworld: 	db "Hello from PC!",		0x0d, 0x0a, 0
 msg_badcommand: 	db "Bad command entered.",	0x0d, 0x0a, 0
 
