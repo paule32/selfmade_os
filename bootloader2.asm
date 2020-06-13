@@ -20,11 +20,11 @@
     mov [bootdrive], dl
 
     ; clear/reset screen
-;    pusha
-;    mov ah, 0x00                ; text mode 80x25 16 colors
-;    mov al, 0x03                ; set/clear screen
-;    int 0x10                    ; video port interrupt call
-;    popa
+    pusha
+    mov ah, 0x00                ; text mode 80x25 16 colors
+    mov al, 0x03                ; set/clear screen
+    int 0x10                    ; video port interrupt call
+    popa
 
 load_kernel:
     xor ax, ax			; mov ax, 0  => function "reset"
@@ -36,7 +36,7 @@ load_kernel:
     ; set parameters for reading function
     ; 8-Bit-wise for better overview
     mov dl, [bootdrive]	; select boot drive
-    mov al, 10			; read 10 sectors
+    mov al, 5			; read 5 sectors
     mov ch, 0			; cylinder = 0
     mov cl, 2			; sector   = 2
     mov dh, 0			; head     = 0
@@ -68,8 +68,9 @@ print_string:
 bootdrive:      db 0
 msg_welcome:    db "Welcome to My OS! (c) 2020 Jens Kallup - paule32", 13,10, 0
 msg_load:       db "loading kernel ...", 13,10, 0
+msg_team:       db "TEAM: #amiga-dresden.de", 0
 
-times 510-($ - $$) nop
+times 510-($ - $$) hlt
 
 ; boot sector signature
 db 0x55 	; end of boot sector

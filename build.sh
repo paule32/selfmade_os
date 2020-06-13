@@ -23,15 +23,36 @@ nasm kernel3.asm     -f bin -o kernel3.bin
 cat bootloader2.bin > boot3.bin
 cat kernel3.bin    >> boot3.bin
 
-# part: 4
+
+# --------------------------------------------------------------------
+# example part: 4
+# compile kernel files ...
+# --------------------------------------------------------------------
 nasm bootloader2.asm -f bin  -o bootloader2.bin
 nasm kernel4.asm     -f aout -o kernel4.o
-#gcc -m32 -O3 -fno-plt -fno-pic -nostdlib -ffreestanding -c ckernel.c -o ckernel.o
+nasm video16.asm     -f aout -o video16.o
+# --------------------------------------------------------------------
+# create, and compress ckenrel.bin
+# --------------------------------------------------------------------
+rm  -rf   ckernel.bin.lz4.c
 ld  -melf_i386 -e RealMode -o ckernel.bin -T kernel.ld
-#cp a.out ckernel.bin
-#rm -rf a.out
-cat bootloader2.bin > boot4.bin
-cat ckernel.bin    >> boot4.bin
+lz4 -z -9 ckernel.bin -f      ckernel.bin.lz4
+xxd -i    ckernel.bin.lz4  >> ckernel.bin.lz4.c
+gcc -m32 -O3 -fno-plt -fno-pic -nostdlib -ffreestanding \
+    -c    ckernel.bin.lz4.c \
+    -o    ckernel.bin.lz4.o
+# -------------------------------------------------------------------
+# prepare decoder + data image ...
+# -------------------------------------------------------------------
+nasm lzma.asm -f aout -o lzma.o
+ld  -melf_i386 -e RealMode -o ckernel.bin.lz4.final -T boot4.ld
+# -------------------------------------------------------------------
+# final part: 4
+# create boot image ...
+# -------------------------------------------------------------------
+cat bootloader2.bin         > boot4.bin
+cat ckernel.bin.lz4.final  >> boot4.bin
+
 
 # part: final
 echo "make cd.iso ..."

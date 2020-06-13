@@ -90,7 +90,7 @@ loop_start:
 .video:
     call k_setVideoMode_320x200
     call k_plotPixel_fast
-    call k_drawline
+    call drawline
     
     xor ax, ax              ; wait for keypress
     int 0x16                ; key board controller
