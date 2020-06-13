@@ -14,14 +14,32 @@
 section .text
 global RealMode
 RealMode:
-
+    ; setup a stack
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov sp, ax
+    
+    xor ax, ax
+    int 0x16
+    
     mov ax, end_of_lz4              ; 0x7c00 + 512 + image size; sector 2
     mov word [lzmaBuffer_src], ax   ; decompress kernel (behind mbr)
     mov word [ds:si], ax            ; encoded image memory location
     mov word [lzmaBuffer_dst], ax   ; ...
     
     call lz4_decompress             ; decompress data
-    
+
+; this part
+push ax
+    mov ax, 3
+    int 0x10
+pop ax
+; is execute fine
+
+
+; but he here, i don't know ...
     mov ax, [es:di]
     jmp ax                          ; jump to start application
     hlt                             ; should be never reached
