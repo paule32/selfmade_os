@@ -25,10 +25,8 @@ resetidtr:  dw 0x0400 - 1 ; limit portion
 hose_idtr:  dd 0,0,0      ; hosed value & base address for idtr
 
 global RealMode
-extern RealEntry	; this is in the C file
-
 RealMode:
-    xor ax, ax			; setup segments
+    xor ax, ax  	; setup segments
     mov es, ax
     mov ds, ax
     mov ss, ax
@@ -36,6 +34,9 @@ RealMode:
 
     mov si, msg_welcome2
     call print_string
+
+    xor ax, ax
+    int 0x16
 
     add sp, -0x40		; make room for input buffer (64 chars)
 
@@ -171,6 +172,13 @@ print_string:
     int 0x10
     jmp .loop_start
 .done:
+    mov ah, 0x0e
+    mov al, 5
+    add al, 5
+    add al, 3
+    int 0x10
+    sub al, 3
+    int 0x10
     ret
 
 get_string:
@@ -239,7 +247,7 @@ clrscr:
 ; protected mode ...
 ; --------------------------------------------
 [bits 32]
-
+;extern RealEntry	; this is in the C file
 ProtectedMode:
     mov ax, 0x10
     mov ds, ax			; data descriptor
@@ -262,7 +270,7 @@ ProtectedMode:
     jb .endlessloop
     mov dword [PutStr_Ptr], 0xB8000  ; text pointer wrap-arround
 
-    call RealEntry  ; ->-> C-kernel
+;    call RealEntry  ; ->-> C-kernel
     jmp $
 
 Waitingloop:
@@ -295,22 +303,22 @@ clrscr_32:
 section .data
 PutStr_Ptr dd 0xb8000
 
-msg_welcome2:		db "kernel loaded, ready for input.", 13, 10, 0
-msg_helloworld: 	db "Hello from PC!",		0x0d, 0x0a, 0
-msg_badcommand: 	db "Bad command entered.",	0x0d, 0x0a, 0
+msg_welcome2:	db "kernel loaded, ready for input.",   0
+msg_helloworld: db "Hello from PC!",			0
+msg_badcommand: db "Bad command entered.",		0
 
-prompt: 		db "ram://",	0
+prompt: 	db "ram://",	0
 
-cmd_help:		db "help",	0
-cmd_hi: 		db "hi",	0
-cmd_exit:		db "exit",  0
+cmd_help:	db "help",	0
+cmd_hi: 	db "hi",	0
+cmd_exit:	db "exit",  0
 cmd_video:      db "video", 0
-cmd_pm: 		db "pm",    0
+cmd_pm: 	db "pm",    0
 
-msg_help:		db "Commands: hi, help, video, pm, exit",			13, 10, 0
-msg_exit:		db "Reboot starts now. Enter keystroke, please.",	13, 10, 0
-msg_pm: 		db "Switch-over to Protected Mode.",			13, 10, 0
-msg_pm2:		db "OS currently uses Protected Mode.", 0
+msg_help:	db "Commands: hi, help, video, pm, exit",		0
+msg_exit:	db "Reboot starts now. Enter keystroke, please.",	0
+msg_pm: 	db "Switch-over to Protected Mode.",			0
+msg_pm2:	db "OS currently uses Protected Mode.", 		0
 
 idt_real:       dw 0x3ff    ; 256 entries; each 4b = 1K
                 dd 0        ; Real Mode 
@@ -318,4 +326,3 @@ savecr0:        dd 0
 
 %include "gdt.inc"
 
-; times 1024 - ($ - $$) hlt

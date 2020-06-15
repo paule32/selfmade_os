@@ -29,32 +29,47 @@ cat kernel3.bin    >> boot3.bin
 # compile kernel files ...
 # --------------------------------------------------------------------
 nasm bootloader2.asm -f bin  -o bootloader2.bin
-nasm kernel4.asm     -f aout -o kernel4.o
-nasm video16.asm     -f aout -o video16.o
-# --------------------------------------------------------------------
-# create, and compress ckenrel.bin
-# --------------------------------------------------------------------
-rm  -rf   ckernel.bin.lz4.c
-ld  -melf_i386 -e RealMode -o ckernel.bin -T kernel.ld
-lz4 -z -9 ckernel.bin -f      ckernel.bin.lz4
-xxd -i    ckernel.bin.lz4  >> ckernel.bin.lz4.c
-gcc -m32 -O3 -fno-plt -fno-pic -nostdlib -ffreestanding \
-    -c    ckernel.bin.lz4.c \
-    -o    ckernel.bin.lz4.o
+#
+nasm kernel4.asm -f aout -o kernel4.o
+nasm video16.asm -f aout -o video16.o
 # -------------------------------------------------------------------
 # prepare decoder + data image ...
 # -------------------------------------------------------------------
-nasm lzma.asm -f aout -o lzma.o
-ld  -melf_i386 -e RealMode -o ckernel.bin.lz4.final -T boot4.ld
+nasm lzma.asm  -f aout -o lzma.o
+ld  -melf_i386 -e RealMode -o lzma.bin -T boot4.ld
+
+cat bootloader2.bin  > boot4.bin
+cat lzma.bin        >> boot4.bin
+
+sz=$(du -b boot4.bin | awk '{ print $1 }')
+sz=$(echo "ibase=10; obase=16; ${sz}" | bc)
+#
+echo -e \
+    "/* AUTOMATIC GENERATED - DONT EDIT IT !!! */"  \
+    "\nOUTPUT_FORMAT(\"binary\")" \
+    "\nENTRY(RealMode)"           \
+    "\nSECTIONS\n{\n\t.text (0x7c00 + 0x${sz}) : {" \
+    "\n\t\tkernel4.o"		\
+    "\n\t\tvideo16.o"		\
+    "\n\t}"			\
+    "\n\t.data : { *(.data) }"	\
+    "\n\t.bss  : { *(.bss)  }"	\
+    "\n}\n" \
+>   kernel4.ld
+# --------------------------------------------------------------------
+# create, and compress kenrel.bin
+# --------------------------------------------------------------------
+ld  -melf_i386 -e RealMode -o kernel.bin -T kernel4.ld
+lz4 -z -9 kernel.bin -f       kernel.bin.lz4
+
 # -------------------------------------------------------------------
 # final part: 4
 # create boot image ...
 # -------------------------------------------------------------------
-cat bootloader2.bin         > boot4.bin
-cat ckernel.bin.lz4.final  >> boot4.bin
+cat kernel.bin.lz4  >> boot4.bin
 
 
 # part: final
-echo "make cd.iso ..."
+#echo "make cd.iso ..."
 #genisoimage -o myos.iso -R -J -D -copyright "(c) 2020 Jens Kallup - non-profit" \
 #    kernel1.bin
