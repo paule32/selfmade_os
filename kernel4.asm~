@@ -288,7 +288,7 @@ msg_welcome2:	db "kernel loaded, ready for input.",   0
 msg_helloworld: db "Hello from PC!",			0
 msg_badcommand: db "Bad command entered.",		0
 
-prompt: 	db "ram://",0
+prompt: 	db "ram://",	0
 
 cmd_help:	db "help",	0
 cmd_hi: 	db "hi",	0

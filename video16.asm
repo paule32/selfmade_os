@@ -24,7 +24,7 @@ k_setVideoMode_320x200:
 global k_setVideoMode_80x25
 k_setVideoMode_80x25:
     mov ah, 0x00            ; function 0x00 = mode set
-    mov ah, 0x03            ; 16-color text
+    mov al, 0x03            ; 16-color text
     int 0x10                ; video controller
     ret                     ; return to caller
 
